@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Auth;
+
+class Site extends Model
+{
+    use HasFactory, HasUuids;
+
+    protected $fillable = ['url', 'user_id'];
+
+    protected static function booted()
+    {
+        //filtra apenas dados que pertence a esse usuario
+
+        static::addGlobalScope('user', function(Builder$builder){
+            $builder->where('user_id', Auth::user()->id);
+        });
+    }
+
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function endpoint(): HasMany
+    {
+        return $this->hasMany(Endpoint::class);
+    }
+}
